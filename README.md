@@ -1,6 +1,6 @@
 # Agent Zero
 
-[![Join our Discord](https://img.shields.io/badge/Discord-Join%20our%20server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/B8KZKNsPpj) [![Subscribe on YouTube](https://img.shields.io/badge/YouTube-Subscribe-red?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@AgentZeroFW) [![Connect on LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jan-tomasek/) [![Follow on X.com](https://img.shields.io/badge/X.com-Follow-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/JanTomasekDev)
+[![Join our Skool Community](https://img.shields.io/badge/Skool-Join%20our%20Community-4A90E2?style=for-the-badge&logo=skool&logoColor=white)](https://www.skool.com/agent-zero) [![Join our Discord](https://img.shields.io/badge/Discord-Join%20our%20server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/B8KZKNsPpj) [![Subscribe on YouTube](https://img.shields.io/badge/YouTube-Subscribe-red?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@AgentZeroFW) [![Connect on LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/jan-tomasek/) [![Follow on X.com](https://img.shields.io/badge/X.com-Follow-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/JanTomasekDev)
 
 
 
@@ -10,6 +10,9 @@
 - Agent Zero is not a predefined agentic framework. It is designed to be dynamic, organically growing, and learning as you use it.
 - Agent Zero is fully transparent, readable, comprehensible, customizable and interactive.
 - Agent Zero uses the computer as a tool to accomplish its (your) tasks.
+
+## Now with UI:
+![UI prototype](docs/ui_screen1.png)
 
 ## Key concepts
 1. **General-purpose assistant**
@@ -23,12 +26,12 @@
 
 3. **Multi-agent cooperation**
 - Every agent has a superior agent giving it tasks and instructions. Every agent then reports back to its superior.
-- In the case of the first agent, the superior is the human user; the agent sees no difference.
+- In the case of the first agent in the chain (Agent 0), the superior is the human user; the agent sees no difference.
 - Every agent can create its subordinate agent to help break down and solve subtasks. This helps all agents keep their context clean and focused.
 
 4. **Completely customizable and extensible**
 - Almost nothing in this framework is hard-coded. Nothing is hidden. Everything can be extended or changed by the user.
-- The whole behavior is defined by a system prompt in the **prompts/agent.system.md** file. Change this prompt and change the framework dramatically.
+- The whole behavior is defined by a system prompt in the **prompts/default/agent.system.md** file. Change this prompt and change the framework dramatically.
 - The framework does not guide or limit the agent in any way. There are no hard-coded rails that agents have to follow.
 - Every prompt, every small message template sent to the agent in its communication loop, can be found in the **prompts/** folder and changed.
 - Every default tool can be found in the **python/tools/** folder and changed or copied to create new predefined tools.
@@ -62,6 +65,7 @@ If your agent fails to communicate properly, use tools, reason, use memory, find
 Agent Zero is made to be used in an isolated virtual environment (for safety) with some tools preinstalled and configured.
 If you cannot provide all the necessary conditions or API keys, just change the system prompt and tell your agent what operating system and tools are at its disposal. Nothing is hard-coded; if you do not tell your agent about a certain tool, it will not know about it and will not try to use it.
 
+
 [![David Ondrej video](/docs/david_vid.jpg)](https://www.youtube.com/watch?v=_Pionjv4hGc)
 
 ## Known problems
@@ -78,13 +82,17 @@ If you cannot provide all the necessary conditions or API keys, just change the 
 
 ## Setup
 
+> ⚠️ **Changes to launch files since v0.6:**  
+> main.py file has been replaced with run_ui.py (webui) and run_cli.py (terminal) launch files.
+> configuration has been moved to initialize.py for both webui and terminal launch files.
+
 Update: [Guide by CheezChat for Windows](./docs/win_installation_guide.txt)
 
 1. **Required API keys:**
-- At the moment, the only recommended API key is for https://www.perplexity.ai/ API. Perplexity is used as a convenient web search tool and has not yet been replaced by an open-source alternative. If you do not have an API key for Perplexity, leave it empty in the .env file and Perplexity will not be used.
-- Chat models and embedding models can be executed locally via Ollama and HuggingFace or via API as well.
+- No API keys are required. Models can run locally. The only recommended API key is for https://www.perplexity.ai/ API. Perplexity is used as a convenient web search tool and has not yet been replaced by an open-source alternative in Agent Zero. If you do not have an API key for Perplexity, leave it empty in the .env file and Perplexity will not be used.
+- Chat models and embedding models can be executed locally via Ollama, LMStudio and HuggingFace or via API as well.
 
-2. **Enter your API keys:**
+2. **Enter your API keys if needed:**
 - You can enter your API keys into the **.env** file, which you can copy from **example.env**
 - Or you can export your API keys in the terminal session:
 ~~~bash
@@ -97,16 +105,22 @@ export API_KEY_OPENAI="your-api-key-here"
 pip install -r requirements.txt
 ~~~
 
-3. **Choose your chat, utility and embeddings model:**
-- In the **main.py** file, right at the start of the **chat()** function, you can see how the chat model and embedding model are set.
-- You can choose between online models (OpenAI, Anthropic, Groq) or offline (Ollama, HuggingFace) for both.
+3. **Choose your chat, utility and embeddings model and check other configuration options:**
+- In the **initialize.py** file, you can see how the chat model and embedding model are set.
+- You can choose between online models (OpenAI, Anthropic, Groq) or offline (Ollama, LMStudio, HuggingFace) for both.
 
 4. **run Docker:**
-- Easiest way is to install Docker Desktop application and just run it. The rest will be handled by the framework itself.
+- Easiest way is to install Docker Desktop application ([Download](https://www.docker.com/products/docker-desktop/)) and just leave it running in the background.
+- You don't need to download and build any images, it will be done automatically by the framework at runtime.
 
 ## Run the program
-- Just run the **main.py** file in Python:
+- Just run the **run_ui.py** file in Python:
 ~~~bash
-python main.py
+python run_ui.py
 ~~~
+- And open the URL shown in the terminal:
+
+![Flask link](docs/flask_link.png)
+
 - Or run it in debug mode in VS Code using the **debug** button in the top right corner of the editor. I have provided config files for VS Code for this purpose.
+- For the original command line interface you can run run_cli.py instead of run_ui.py
