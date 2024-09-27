@@ -2,12 +2,15 @@ import asyncio
 import threading
 from concurrent.futures import Future
 
+
 class DeferredTask:
     def __init__(self, func, *args, **kwargs):
         self._loop = asyncio.new_event_loop()
         self._task = None
         self._future = Future()
-        self._task_initialized = threading.Event()  # Event to signal task initialization
+        self._task_initialized = (
+            threading.Event()
+        )  # Event to signal task initialization
         self._start_task(func, *args, **kwargs)
 
     def _start_task(self, func, *args, **kwargs):
@@ -17,7 +20,9 @@ class DeferredTask:
             self._task_initialized.set()  # Signal that the task has been initialized
             loop.run_forever()
 
-        self._thread = threading.Thread(target=run_in_thread, args=(self._loop, func, args, kwargs))
+        self._thread = threading.Thread(
+            target=run_in_thread, args=(self._loop, func, args, kwargs)
+        )
         self._thread.start()
 
     async def _run(self, func, *args, **kwargs):
@@ -33,22 +38,30 @@ class DeferredTask:
         return self._future.done()
 
     async def result(self, timeout=None):
-        if not self._task_initialized.wait(timeout):  # Wait until the task is initialized
+        if not self._task_initialized.wait(
+            timeout
+        ):  # Wait until the task is initialized
             raise RuntimeError("Task was not initialized properly.")
 
         try:
             return await asyncio.wait_for(asyncio.wrap_future(self._future), timeout)
         except asyncio.TimeoutError:
-            raise TimeoutError("The task did not complete within the specified timeout.")
+            raise TimeoutError(
+                "The task did not complete within the specified timeout."
+            )
 
     def result_sync(self, timeout=None):
-        if not self._task_initialized.wait(timeout):  # Wait until the task is initialized
+        if not self._task_initialized.wait(
+            timeout
+        ):  # Wait until the task is initialized
             raise RuntimeError("Task was not initialized properly.")
-        
+
         try:
             return self._future.result(timeout)
         except TimeoutError:
-            raise TimeoutError("The task did not complete within the specified timeout.")
+            raise TimeoutError(
+                "The task did not complete within the specified timeout."
+            )
 
     def kill(self):
         if self._task and not self._task.done():

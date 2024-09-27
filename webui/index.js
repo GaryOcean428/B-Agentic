@@ -15,7 +15,6 @@ let autoScroll = true;
 
 let context = "";
 
-
 splitter.addEventListener('mousedown', (e) => {
     isResizing = true;
     document.addEventListener('mousemove', resize);
@@ -37,12 +36,25 @@ function stopResize() {
 async function sendMessage() {
     const message = chatInput.value.trim();
     if (message) {
-
-        const response = await sendJsonData("/msg", { text: message, context });
-
-        //setMessage('user', message);
-        chatInput.value = '';
-        adjustTextareaHeight();
+        try {
+            console.log('Sending message:', message);
+            setMessage(Date.now(), 'user', 'User message', message);
+            const response = await sendJsonData("/msg", { message: message, ctxid: context });
+            console.log('Response received:', response);
+            if (response.status === "success") {
+                chatInput.value = '';
+                adjustTextareaHeight();
+                if (response.response) {
+                    setMessage(Date.now(), 'agent', 'AI response', response.response);
+                }
+            } else {
+                console.error('Error sending message:', response.message);
+                alert('Error sending message: ' + response.message);
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            alert('Error sending message: ' + error.message);
+        }
     }
 }
 
@@ -56,6 +68,7 @@ chatInput.addEventListener('keydown', (e) => {
 sendButton.addEventListener('click', sendMessage);
 
 function setMessage(id, type, heading, content, kvps = null) {
+    console.log('Setting message:', { id, type, heading, content, kvps });
     // Search for the existing message container by id
     let messageContainer = document.getElementById(`message-${id}`);
 
@@ -81,13 +94,13 @@ function setMessage(id, type, heading, content, kvps = null) {
     if (autoScroll) chatHistory.scrollTop = chatHistory.scrollHeight;
 }
 
-
 function adjustTextareaHeight() {
     chatInput.style.height = 'auto';
     chatInput.style.height = (chatInput.scrollHeight) + 'px';
 }
 
 async function sendJsonData(url, data) {
+    console.log('Sending JSON data:', { url, data });
     const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -96,11 +109,13 @@ async function sendJsonData(url, data) {
         body: JSON.stringify(data)
     });
 
+    const jsonResponse = await response.json();
+    console.log('Received JSON response:', jsonResponse);
+
     if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error(jsonResponse.message || 'Network response was not ok');
     }
 
-    const jsonResponse = await response.json();
     return jsonResponse;
 }
 
@@ -118,10 +133,9 @@ let lastLogGuid = ""
 async function poll() {
     try {
         const response = await sendJsonData("/poll", { log_from: lastLogVersion, context });
-        // console.log(response)
+        console.log('Poll response:', response);
 
         if (response.ok) {
-
             setContext(response.context)
 
             if (lastLogGuid != response.log_guid) {
@@ -145,12 +159,9 @@ async function poll() {
 
             lastLogVersion = response.log_version;
             lastLogGuid = response.log_guid;
-
-
         }
-
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error in poll:', error);
         const statusAD = Alpine.$data(statusSection);
         statusAD.connected = false;
     }
@@ -169,8 +180,6 @@ window.newChat = async function () {
 }
 
 window.killChat = async function (id) {
-
-
     const chatsAD = Alpine.$data(chatsSection);
     let found, other
     for (let i = 0; i < chatsAD.contexts.length; i++) {
@@ -186,7 +195,7 @@ window.killChat = async function (id) {
         if (other) setContext(other.id)
         else setContext(generateGUID())
     }
-    
+
     if (found) sendJsonData("/remove", { context: id });
 }
 
@@ -203,39 +212,30 @@ const setContext = function (id) {
     chatsAD.selected = id
 }
 
-
 window.toggleAutoScroll = async function (_autoScroll) {
     autoScroll = _autoScroll;
 }
 
 window.toggleJson = async function (showJson) {
-    // add display:none to .msg-json class definition
     toggleCssProperty('.msg-json', 'display', showJson ? 'block' : 'none');
 }
 
 window.toggleThoughts = async function (showThoughts) {
-    // add display:none to .msg-json class definition
     toggleCssProperty('.msg-thoughts', 'display', showThoughts ? undefined : 'none');
 }
 
-
 function toggleCssProperty(selector, property, value) {
-    // Get the stylesheet that contains the class
     const styleSheets = document.styleSheets;
-
-    // Iterate through all stylesheets to find the class
     for (let i = 0; i < styleSheets.length; i++) {
         const styleSheet = styleSheets[i];
         const rules = styleSheet.cssRules || styleSheet.rules;
-
         for (let j = 0; j < rules.length; j++) {
             const rule = rules[j];
             if (rule.selectorText == selector) {
-                // Check if the property is already applied
                 if (value === undefined) {
-                    rule.style.removeProperty(property);  // Remove the property
+                    rule.style.removeProperty(property);
                 } else {
-                    rule.style.setProperty(property, value);  // Add the property (you can customize the value)
+                    rule.style.setProperty(property, value);
                 }
                 return;
             }

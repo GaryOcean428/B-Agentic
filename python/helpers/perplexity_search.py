@@ -1,33 +1,35 @@
+import openai
+from typing import Any, Dict, List, Optional
 
-from openai import OpenAI
-import models
+def get_api_key(service_name: str) -> str:
+    # Function to retrieve API key for the specified service
+    # Replace this with your method of fetching API keys
+    api_keys = {
+        'perplexity': 'YOUR_PERPLEXITY_API_KEY'
+    }
+    return api_keys.get(service_name, '')
 
-def perplexity_search(query:str, model_name="llama-3.1-sonar-large-128k-online",api_key=None,base_url="https://api.perplexity.ai"):    
-    api_key = api_key or models.get_api_key("perplexity")
+def perplexity_search(
+    query: str,
+    model_name: str = "llama-3.1-sonar-large-128k-online",
+    api_key: Optional[str] = None,
+    base_url: str = "https://api.perplexity.ai",
+) -> str:
+    api_key = api_key or get_api_key("perplexity")
 
-    client = OpenAI(api_key=api_key, base_url=base_url)
-        
+    openai.api_key = api_key
+    openai.api_base = base_url  # type: ignore  # Suppress type checker error
+
     messages = [
-    #It is recommended to use only single-turn conversations and avoid system prompts for the online LLMs (sonar-small-online and sonar-medium-online).
-    
-    # {
-    #     "role": "system",
-    #     "content": (
-    #         "You are an artificial intelligence assistant and you need to "
-    #         "engage in a helpful, detailed, polite conversation with a user."
-    #     ),
-    # },
-    {
-        "role": "user",
-        "content": (
-            query
-        ),
-    },
+        {
+            "role": "user",
+            "content": query,
+        },
     ]
-    
-    response = client.chat.completions.create(
+
+    response = openai.ChatCompletion.create(  # type: ignore
         model=model_name,
-        messages=messages, # type: ignore
+        messages=messages,
     )
-    result = response.choices[0].message.content #only the text is returned
+    result = response['choices'][0]['message']['content']
     return result

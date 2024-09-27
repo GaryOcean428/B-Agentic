@@ -39,8 +39,8 @@
                 <ul class="config-list">
                     <template x-for="context in contexts">
                         <li>
-                            <span 
-                                :class="{'chat-list-button': true, 'font-bold': context.id === selected}" 
+                            <span
+                                :class="{'chat-list-button': true, 'font-bold': context.id === selected}"
                                 @click="selected = context.id; selectChat(context.id)">
                                 Chat #<span x-text="context.no"></span>
                             </span>
@@ -54,29 +54,30 @@
                 <h3>Preferences</h3>
                 <ul class="config-list">
                     <li x-data="{ autoScroll: true }">
-                        <span>Autoscroll</span>
-                        <label class="switch">
-                            <input type="checkbox" x-model="autoScroll"
+                        <label for="autoScrollCheckbox">Autoscroll</label>
+                        <div class="switch">
+                            <input type="checkbox" id="autoScrollCheckbox" x-model="autoScroll"
                                 x-effect="window.safeCall('toggleAutoScroll',autoScroll)">
                             <span class="slider"></span>
-                        </label>
+                        </div>
                     </li>
 
                     <li x-data="{ showThoughts: true }">
-                        <span>Show thoughts</span>
-                        <label class="switch">
-                            <input type="checkbox" x-model="showThoughts"
+                        <label for="showThoughtsCheckbox">Show thoughts</label>
+                        <div class="switch">
+                            <input type="checkbox" id="showThoughtsCheckbox" x-model="showThoughts"
                                 x-effect="window.safeCall('toggleThoughts',showThoughts)">
                             <span class="slider"></span>
-                        </label>
+                        </div>
                     </li>
 
                     <li x-data="{ showJson: false }">
-                        <span>Show JSON</span>
-                        <label class="switch">
-                            <input type="checkbox" x-model="showJson" x-effect="window.safeCall('toggleJson',showJson)">
+                        <label for="showJsonCheckbox">Show JSON</label>
+                        <div class="switch">
+                            <input type="checkbox" id="showJsonCheckbox" x-model="showJson"
+                                x-effect="window.safeCall('toggleJson',showJson)">
                             <span class="slider"></span>
-                        </label>
+                        </div>
                     </li>
 
                 </ul>
